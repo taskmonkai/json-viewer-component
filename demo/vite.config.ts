@@ -4,9 +4,9 @@ import { fileURLToPath } from 'node:url';
 
 export default defineConfig(({ command }) => ({
   root: fileURLToPath(new URL('.', import.meta.url)),
-  // Project pages are served from https://<user>.github.io/tm-json-viewer/, so asset URLs
+  // Project pages are served from https://<user>.github.io/json-viewer-component/, so asset URLs
   // need that path prefix in production; the dev server still serves from '/'.
-  base: command === 'build' ? '/tm-json-viewer/' : '/',
+  base: command === 'build' ? '/json-viewer-component/' : '/',
   plugins: [react()],
   resolve: {
     alias: {
