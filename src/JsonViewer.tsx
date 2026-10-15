@@ -1,10 +1,11 @@
 import { useCallback, useEffect, useId, useMemo, useState } from 'react';
-import type { JsonViewerProps } from './types';
+import type { JsonViewerProps, ViewMode } from './types';
 import { getValueKind } from './utils/json';
 import { buildSearchIndex } from './utils/search';
 import { SearchContext } from './SearchContext';
 import { Toolbar } from './components/Toolbar';
 import { JsonNode } from './components/JsonNode';
+import { HtmlView, buildHtmlRows, filterHtmlRows } from './components/HtmlView';
 import { injectStylesOnce } from './styles';
 
 const NO_ANCESTORS: ReadonlySet<object> = new Set();
@@ -15,6 +16,8 @@ export function JsonViewer({
   expandAll = false,
   showCopyButton = true,
   showSearch = true,
+  defaultView = 'tree',
+  showViewToggle = true,
   theme = 'light',
   className,
   id,
@@ -25,6 +28,7 @@ export function JsonViewer({
 
   const instanceId = useId();
   const [searchTerm, setSearchTerm] = useState('');
+  const [view, setView] = useState<ViewMode>(defaultView);
   const [treeVersion, setTreeVersion] = useState(0);
   const [forcedExpanded, setForcedExpanded] = useState<boolean | undefined>(undefined);
 
@@ -38,7 +42,15 @@ export function JsonViewer({
     setTreeVersion((v) => v + 1);
   }, []);
 
-  const searchIndex = useMemo(() => buildSearchIndex(data, searchTerm), [data, searchTerm]);
+  const searchIndex = useMemo(
+    () => (view === 'tree' ? buildSearchIndex(data, searchTerm) : null),
+    [data, searchTerm, view],
+  );
+  const htmlRows = useMemo(() => (view === 'html' ? buildHtmlRows(data) : []), [data, view]);
+  const visibleHtmlRows = useMemo(
+    () => filterHtmlRows(htmlRows, searchTerm),
+    [htmlRows, searchTerm],
+  );
 
   const rootClassName = `jv-root${className ? ` ${className}` : ''}`;
 
@@ -70,26 +82,37 @@ export function JsonViewer({
         onSearchChange={setSearchTerm}
         onExpandAll={handleExpandAll}
         onCollapseAll={handleCollapseAll}
-        matchCount={searchIndex.matches.size}
+        matchCount={searchIndex ? searchIndex.matches.size : visibleHtmlRows.length}
         data={data}
         instanceId={instanceId}
+        view={view}
+        showViewToggle={showViewToggle}
+        onViewChange={setView}
       />
       <div className="jv-tree-container">
-        <SearchContext.Provider value={{ term: searchTerm, index: searchIndex, showCopyButton }}>
-          <ul className="jv-tree" role="tree" aria-label="JSON data">
-            <JsonNode
-              key={treeVersion}
-              name={null}
-              value={data}
-              path={[]}
-              depth={0}
-              defaultExpandDepth={defaultExpandDepth}
-              expandAll={expandAll}
-              forcedExpanded={forcedExpanded}
-              ancestors={NO_ANCESTORS}
-            />
-          </ul>
-        </SearchContext.Provider>
+        {searchIndex ? (
+          <SearchContext.Provider value={{ term: searchTerm, index: searchIndex, showCopyButton }}>
+            <ul className="jv-tree" role="tree" aria-label="JSON data">
+              <JsonNode
+                key={treeVersion}
+                name={null}
+                value={data}
+                path={[]}
+                depth={0}
+                defaultExpandDepth={defaultExpandDepth}
+                expandAll={expandAll}
+                forcedExpanded={forcedExpanded}
+                ancestors={NO_ANCESTORS}
+              />
+            </ul>
+          </SearchContext.Provider>
+        ) : (
+          <HtmlView
+            rows={visibleHtmlRows}
+            searchTerm={searchTerm}
+            showCopyButton={showCopyButton}
+          />
+        )}
       </div>
     </div>
   );

@@ -130,6 +130,25 @@ export const CSS = `
   vertical-align: -1px;
 }
 
+.jv-view-toggle {
+  display: inline-flex;
+}
+.jv-view-toggle .jv-btn {
+  border-radius: 0;
+}
+.jv-view-toggle .jv-btn:first-child {
+  border-radius: 6px 0 0 6px;
+}
+.jv-view-toggle .jv-btn:last-child {
+  border-radius: 0 6px 6px 0;
+  margin-left: -1px;
+}
+.jv-view-toggle .jv-btn[aria-pressed='true'] {
+  background: var(--jv-focus);
+  border-color: var(--jv-focus);
+  color: var(--jv-bg);
+}
+
 .jv-tree-container {
   padding: 6px 8px;
   overflow: auto;
@@ -246,6 +265,109 @@ export const CSS = `
   color: var(--jv-mark-fg);
   border-radius: 2px;
   padding: 0 1px;
+}
+
+.jv-table {
+  width: 100%;
+  border-collapse: collapse;
+}
+.jv-table th,
+.jv-table td {
+  border: 1px solid var(--jv-border);
+  padding: 4px 8px;
+  text-align: left;
+  vertical-align: top;
+}
+.jv-table thead th {
+  color: var(--jv-muted);
+  font-weight: 600;
+  background: var(--jv-btn-bg);
+}
+.jv-table-key {
+  width: 1%;
+  white-space: nowrap;
+}
+.jv-table-row:hover {
+  background: var(--jv-row-hover);
+}
+.jv-table-row:hover .jv-copy {
+  opacity: 1;
+  pointer-events: auto;
+}
+.jv-table-cell {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 4px;
+}
+.jv-table-value {
+  width: 100%;
+  max-width: 0;
+}
+.jv-table-pre {
+  flex: 1 1 auto;
+  margin: 0;
+  font: inherit;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  min-width: 0;
+}
+.jv-view-btn {
+  flex: 0 0 auto;
+  padding: 0 6px;
+  font-size: 11px;
+}
+
+.jv-dialog-backdrop {
+  position: fixed;
+  inset: 0;
+  z-index: 1000;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 16px;
+  background: rgba(0, 0, 0, 0.45);
+}
+.jv-dialog {
+  display: flex;
+  flex-direction: column;
+  width: min(720px, 100%);
+  max-height: min(80vh, 640px);
+  background: var(--jv-bg);
+  color: var(--jv-fg);
+  border: 1px solid var(--jv-border);
+  border-radius: 8px;
+  box-shadow: 0 12px 32px rgba(0, 0, 0, 0.3);
+}
+.jv-dialog-header {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 8px 10px;
+  border-bottom: 1px solid var(--jv-border);
+}
+.jv-dialog-title {
+  flex: 1 1 auto;
+  min-width: 0;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+.jv-dialog-format {
+  color: var(--jv-muted);
+  font-size: 11px;
+  border: 1px solid var(--jv-border);
+  border-radius: 4px;
+  padding: 0 4px;
+}
+.jv-dialog-body {
+  margin: 0;
+  padding: 10px 12px;
+  overflow: auto;
+  font: inherit;
+  white-space: pre-wrap;
+  word-break: break-word;
 }
 
 .jv-copy {
