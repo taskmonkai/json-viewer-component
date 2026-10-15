@@ -73,6 +73,8 @@ export function Example() {
 | `expandAll`          | `boolean`           | `false`   | Start every node expanded, overriding `defaultExpandDepth`.               |
 | `showCopyButton`     | `boolean`           | `true`    | Show copy-to-clipboard controls on values and the toolbar.                |
 | `showSearch`         | `boolean`           | `true`    | Show the search box in the toolbar.                                       |
+| `defaultView`        | `'tree' \| 'html'`  | `'tree'`  | Initial view: expandable tree, or HTML table of top-level keys.           |
+| `showViewToggle`     | `boolean`           | `true`    | Show the Tree / HTML view switch in the toolbar.                          |
 | `theme`              | `'light' \| 'dark'` | `'light'` | Visual theme.                                                             |
 | `className`          | `string`            | —         | Extra class name applied to the root element.                             |
 | `id`                 | `string`            | —         | `id` applied to the root element.                                         |
@@ -93,6 +95,18 @@ export function Example() {
 Type in the search box to match against keys, array indexes, or leaf values (case-insensitive
 substring match). Matches are highlighted inline, ancestors of a match are auto-expanded, and the
 toolbar shows a live match count.
+
+## HTML view
+
+Switch to the HTML view from the toolbar (or start there with `defaultView="html"`) to see the
+data as a two-column table: one row per top-level key (or array index), with its value
+stringified. Strings are shown as-is; objects, arrays, and other values are shown as single-line
+JSON (e.g. `{"id":1,"tags":["a","b"]}`). Search filters the table to rows whose key or value matches.
+
+Values that don't fit on one line are cut off with an ellipsis and get a **View** button that opens
+the full value in a popup. In the popup, objects, arrays, and strings containing JSON are
+pretty-printed as JSON; everything else is shown as plain text. Close it with the Close button,
+<kbd>Esc</kbd>, or by clicking outside.
 
 ## Customizing the theme
 

@@ -285,3 +285,86 @@ describe('JsonViewer - accessibility', () => {
     expect(screen.getByLabelText(/search json keys and values/i)).toBeInTheDocument();
   });
 });
+
+describe('JsonViewer - HTML view', () => {
+  it('shows top-level keys with stringified values in a table', async () => {
+    const user = userEvent.setup();
+    render(<JsonViewer data={{ name: 'Alice', tags: ['a', 'b'], meta: { id: 1 } }} />);
+
+    await user.click(screen.getByRole('button', { name: 'HTML' }));
+
+    const table = screen.getByRole('table');
+    expect(table).toBeInTheDocument();
+    expect(screen.getByRole('rowheader', { name: 'name' })).toBeInTheDocument();
+    expect(screen.getByText('Alice')).toBeInTheDocument();
+    expect(screen.getByText('["a","b"]')).toBeInTheDocument();
+    expect(screen.getByText('{"id":1}')).toBeInTheDocument();
+    expect(screen.queryByRole('button', { name: /expand all/i })).not.toBeInTheDocument();
+  });
+
+  it('starts in HTML view via defaultView and filters rows by search', async () => {
+    const user = userEvent.setup();
+    render(<JsonViewer data={{ city: 'Berlin', country: 'DE' }} defaultView="html" />);
+
+    expect(screen.getAllByRole('row')).toHaveLength(3);
+    await user.type(screen.getByRole('searchbox'), 'berlin');
+    expect(screen.getAllByRole('row')).toHaveLength(2);
+    expect(screen.getByText('1 match')).toBeInTheDocument();
+  });
+
+  it('hides the view toggle when showViewToggle is false', () => {
+    render(<JsonViewer data={{ a: 1 }} showViewToggle={false} />);
+    expect(screen.queryByRole('button', { name: 'HTML' })).not.toBeInTheDocument();
+  });
+});
+
+describe('JsonViewer - HTML view overflow popup', () => {
+  /** jsdom has no layout, so fake every element being wider than its box. */
+  function fakeOverflow() {
+    const scroll = vi.spyOn(HTMLElement.prototype, 'scrollWidth', 'get').mockReturnValue(500);
+    const client = vi.spyOn(HTMLElement.prototype, 'clientWidth', 'get').mockReturnValue(100);
+    return () => {
+      scroll.mockRestore();
+      client.mockRestore();
+    };
+  }
+
+  it('does not offer a popup when the value fits', () => {
+    render(<JsonViewer data={{ a: 1 }} defaultView="html" />);
+    expect(screen.queryByRole('button', { name: /view full value/i })).not.toBeInTheDocument();
+  });
+
+  it('shows nested values as pretty JSON in the popup', async () => {
+    const restore = fakeOverflow();
+    const user = userEvent.setup();
+    render(<JsonViewer data={{ meta: { id: 1, tags: ['x'] } }} defaultView="html" />);
+
+    await user.click(screen.getByRole('button', { name: 'View full value of meta' }));
+    const dialog = screen.getByRole('dialog', { name: 'Value of meta' });
+    expect(dialog).toHaveTextContent('JSON');
+    expect(dialog.querySelector('pre')?.textContent).toBe(
+      JSON.stringify({ id: 1, tags: ['x'] }, null, 2),
+    );
+
+    await user.keyboard('{Escape}');
+    expect(screen.queryByRole('dialog')).not.toBeInTheDocument();
+    restore();
+  });
+
+  it('shows plain strings as text and JSON strings as JSON', async () => {
+    const restore = fakeOverflow();
+    const user = userEvent.setup();
+    render(<JsonViewer data={{ note: 'hello world', raw: '{"k":true}' }} defaultView="html" />);
+
+    await user.click(screen.getByRole('button', { name: 'View full value of note' }));
+    let dialog = screen.getByRole('dialog');
+    expect(dialog).toHaveTextContent('Text');
+    expect(dialog.querySelector('pre')?.textContent).toBe('hello world');
+    await user.click(screen.getByRole('button', { name: 'Close' }));
+
+    await user.click(screen.getByRole('button', { name: 'View full value of raw' }));
+    dialog = screen.getByRole('dialog');
+    expect(dialog.querySelector('pre')?.textContent).toBe('{\n  "k": true\n}');
+    restore();
+  });
+});

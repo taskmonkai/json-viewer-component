@@ -82,7 +82,16 @@ export function App() {
       </section>
 
       <section className="demo-section">
-        <h2>7. Edge cases</h2>
+        <h2>7. HTML view</h2>
+        <p className="demo-desc">
+          Use the toolbar&apos;s Tree / HTML switch, or <code>defaultView=&quot;html&quot;</code>,
+          to see top-level keys in a table with each value stringified.
+        </p>
+        <JsonViewer data={basicData} theme={dark ? 'dark' : 'light'} defaultView="html" />
+      </section>
+
+      <section className="demo-section">
+        <h2>8. Edge cases</h2>
         <p className="demo-desc">Empty object, empty array, null root, and a circular reference.</p>
         <div style={{ display: 'grid', gap: 12 }}>
           <JsonViewer data={{}} theme={dark ? 'dark' : 'light'} showSearch={false} />

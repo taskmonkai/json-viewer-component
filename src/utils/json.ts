@@ -21,7 +21,7 @@ export function copyTextForPrimitive(value: unknown, kind: ValueKind): string {
   return String(value);
 }
 
-export function safeStringify(value: unknown): string {
+export function safeStringify(value: unknown, indent = 2): string {
   const seen = new WeakSet<object>();
   return JSON.stringify(
     value,
@@ -33,6 +33,6 @@ export function safeStringify(value: unknown): string {
       if (typeof val === 'function') return `[Function: ${val.name || 'anonymous'}]`;
       return val;
     },
-    2,
+    indent,
   );
 }

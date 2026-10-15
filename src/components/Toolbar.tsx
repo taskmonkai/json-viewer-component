@@ -1,6 +1,7 @@
 import type { ChangeEvent } from 'react';
 import { CopyButton } from './CopyButton';
 import { safeStringify } from '../utils/json';
+import type { ViewMode } from '../types';
 
 export interface ToolbarProps {
   showSearch: boolean;
@@ -12,6 +13,9 @@ export interface ToolbarProps {
   matchCount: number;
   data: unknown;
   instanceId: string;
+  view: ViewMode;
+  showViewToggle: boolean;
+  onViewChange: (view: ViewMode) => void;
 }
 
 export function Toolbar({
@@ -24,6 +28,9 @@ export function Toolbar({
   matchCount,
   data,
   instanceId,
+  view,
+  showViewToggle,
+  onViewChange,
 }: ToolbarProps): JSX.Element {
   const searchInputId = `${instanceId}-search`;
 
@@ -55,12 +62,36 @@ export function Toolbar({
         </div>
       )}
       <div className="jv-toolbar-actions">
-        <button type="button" className="jv-btn" onClick={onExpandAll}>
-          Expand All
-        </button>
-        <button type="button" className="jv-btn" onClick={onCollapseAll}>
-          Collapse All
-        </button>
+        {showViewToggle && (
+          <div className="jv-view-toggle" role="group" aria-label="View mode">
+            <button
+              type="button"
+              className="jv-btn"
+              aria-pressed={view === 'tree'}
+              onClick={() => onViewChange('tree')}
+            >
+              Tree
+            </button>
+            <button
+              type="button"
+              className="jv-btn"
+              aria-pressed={view === 'html'}
+              onClick={() => onViewChange('html')}
+            >
+              HTML
+            </button>
+          </div>
+        )}
+        {view === 'tree' && (
+          <>
+            <button type="button" className="jv-btn" onClick={onExpandAll}>
+              Expand All
+            </button>
+            <button type="button" className="jv-btn" onClick={onCollapseAll}>
+              Collapse All
+            </button>
+          </>
+        )}
         {showCopyButton && (
           <CopyButton
             getText={() => safeStringify(data)}
