@@ -141,6 +141,8 @@ export const CSS = `
 }
 .jv-view-toggle .jv-btn:last-child {
   border-radius: 0 6px 6px 0;
+}
+.jv-view-toggle .jv-btn + .jv-btn {
   margin-left: -1px;
 }
 .jv-view-toggle .jv-btn[aria-pressed='true'] {
@@ -312,6 +314,29 @@ export const CSS = `
   overflow: hidden;
   text-overflow: ellipsis;
   min-width: 0;
+}
+.jv-table-scroll {
+  overflow-x: auto;
+}
+.jv-array-table {
+  width: auto;
+  min-width: 100%;
+}
+.jv-array-cell {
+  max-width: 280px;
+}
+.jv-node-table {
+  padding: 4px 0;
+}
+.jv-node-view-btn {
+  padding: 0 6px;
+  font-size: 11px;
+  margin-left: 6px;
+}
+.jv-node-view-btn[aria-pressed='true'] {
+  background: var(--jv-focus);
+  border-color: var(--jv-focus);
+  color: var(--jv-bg);
 }
 .jv-view-btn {
   flex: 0 0 auto;

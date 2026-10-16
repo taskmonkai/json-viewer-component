@@ -4,7 +4,9 @@ import { copyTextForPrimitive, getValueKind, safeStringify } from '../utils/json
 import { highlightMatches } from '../utils/highlight';
 import { pathKey } from '../utils/search';
 import { useSearchContext } from '../SearchContext';
+import { canShowAsTable } from '../utils/table';
 import { CopyButton } from './CopyButton';
+import { ArrayTable } from './TableView';
 import { ChevronIcon } from './icons';
 
 const MAX_DEPTH = 500;
@@ -23,6 +25,13 @@ export interface JsonNodeProps {
 
 function displayKey(name: PathSegment): string {
   return typeof name === 'number' ? String(name) : name;
+}
+
+/** e.g. ['users', 3, 'roles'] -> "users[3].roles" */
+function displayPath(path: PathSegment[]): string {
+  return path
+    .map((seg, i) => (typeof seg === 'number' ? `[${seg}]` : i === 0 ? seg : `.${seg}`))
+    .join('');
 }
 
 function JsonNodeImpl({
@@ -50,6 +59,10 @@ function JsonNodeImpl({
   const isExpandable = isContainer && count > 0;
   const childAncestors = isContainer ? new Set([...ancestors, value as object]) : ancestors;
 
+  // Nested arrays can switch between child rows and a table; the root uses the toolbar's Table view.
+  const tableable = depth > 0 && isContainer && canShowAsTable(value);
+  const [asTable, setAsTable] = useState(false);
+
   const [localExpanded, setLocalExpanded] = useState(
     () => forcedExpanded ?? (expandAll || depth < defaultExpandDepth),
   );
@@ -57,6 +70,16 @@ function JsonNodeImpl({
   const forcedOpenBySearch = term.trim() !== '' && index.ancestors.has(key);
   const isOpen = isExpandable && (localExpanded || forcedOpenBySearch);
   const isMatch = term.trim() !== '' && index.matches.has(key);
+
+  // Turning the table on also opens the node; turning it off leaves it open as a tree.
+  const showAsTable = useCallback(() => {
+    if (isOpen && asTable) {
+      setAsTable(false);
+    } else {
+      setAsTable(true);
+      setLocalExpanded(true);
+    }
+  }, [isOpen, asTable]);
 
   const toggle = useCallback(() => {
     if (isExpandable) setLocalExpanded((v) => !v);
@@ -124,12 +147,35 @@ function JsonNodeImpl({
           )}
         </span>
 
+        {tableable && (
+          <button
+            type="button"
+            className="jv-btn jv-node-view-btn"
+            aria-pressed={isOpen && asTable}
+            aria-label={`Show ${displayKey(name ?? 'root')} as table`}
+            onClick={showAsTable}
+          >
+            Table
+          </button>
+        )}
+
         {showCopyButton && (
           <CopyButton getText={getCopyText} label={copyLabel} className="jv-row-copy" />
         )}
       </div>
 
-      {isOpen && (
+      {isOpen && tableable && asTable && (
+        <div className="jv-children jv-node-table" role="group">
+          <ArrayTable
+            data={value as unknown[]}
+            label={displayPath(path)}
+            searchTerm={term}
+            showCopyButton={showCopyButton}
+          />
+        </div>
+      )}
+
+      {isOpen && !(tableable && asTable) && (
         <ul className="jv-children" role="group">
           {entries.map(([childKey, childValue]) => (
             <JsonNode

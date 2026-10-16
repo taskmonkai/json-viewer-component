@@ -1,6 +1,6 @@
 import { useState } from 'react';
 import { JsonViewer } from 'tm-json-viewer-lite';
-import { basicData, circularExample, largeNestedData } from './sampleData';
+import { arrayData, basicData, circularExample, largeNestedData } from './sampleData';
 import './App.css';
 
 export function App() {
@@ -91,7 +91,18 @@ export function App() {
       </section>
 
       <section className="demo-section">
-        <h2>8. Edge cases</h2>
+        <h2>8. Array root</h2>
+        <p className="demo-desc">
+          A top-level array mixing objects, primitives, null, and nested arrays, starting in the
+          Table view (<code>defaultView=&quot;table&quot;</code>): one row per item, a column per
+          key, and a Value column for non-object items. In the Tree view, nested arrays like{' '}
+          <code>tags</code> get their own Table button too.
+        </p>
+        <JsonViewer data={arrayData} theme={dark ? 'dark' : 'light'} defaultView="table" />
+      </section>
+
+      <section className="demo-section">
+        <h2>9. Edge cases</h2>
         <p className="demo-desc">Empty object, empty array, null root, and a circular reference.</p>
         <div style={{ display: 'grid', gap: 12 }}>
           <JsonViewer data={{}} theme={dark ? 'dark' : 'light'} showSearch={false} />

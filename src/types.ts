@@ -18,8 +18,11 @@ export type PathSegment = string | number;
 
 export type Theme = 'light' | 'dark';
 
-/** 'tree' = expandable tree; 'html' = table of top-level keys with stringified values. */
-export type ViewMode = 'tree' | 'html';
+/**
+ * 'tree' = expandable tree; 'html' = table of top-level keys with stringified values;
+ * 'table' = one row per array item with a column per key (only for non-empty array roots).
+ */
+export type ViewMode = 'tree' | 'html' | 'table';
 
 export interface JsonViewerProps {
   /** The JSON-serializable data to render. */
@@ -32,9 +35,9 @@ export interface JsonViewerProps {
   showCopyButton?: boolean;
   /** Show the search box in the toolbar. Default: true. */
   showSearch?: boolean;
-  /** View shown on first render. Default: 'tree'. */
+  /** View shown on first render. 'table' falls back to 'tree' unless data is a non-empty array. Default: 'tree'. */
   defaultView?: ViewMode;
-  /** Show the Tree / HTML view switcher in the toolbar. Default: true. */
+  /** Show the Tree / HTML / Table view switcher in the toolbar. Default: true. */
   showViewToggle?: boolean;
   /** Visual theme. Default: 'light'. */
   theme?: Theme;

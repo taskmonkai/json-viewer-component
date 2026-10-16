@@ -6,6 +6,8 @@ import { SearchContext } from './SearchContext';
 import { Toolbar } from './components/Toolbar';
 import { JsonNode } from './components/JsonNode';
 import { HtmlView, buildHtmlRows, filterHtmlRows } from './components/HtmlView';
+import { ArrayTable } from './components/TableView';
+import { buildTable, canShowAsTable, filterTableRows } from './utils/table';
 import { injectStylesOnce } from './styles';
 
 const NO_ANCESTORS: ReadonlySet<object> = new Set();
@@ -42,14 +44,29 @@ export function JsonViewer({
     setTreeVersion((v) => v + 1);
   }, []);
 
+  const tableAvailable = canShowAsTable(data);
+  // A 'table' view only makes sense for array data; anything else falls back to the tree.
+  const activeView: ViewMode = view === 'table' && !tableAvailable ? 'tree' : view;
+
   const searchIndex = useMemo(
-    () => (view === 'tree' ? buildSearchIndex(data, searchTerm) : null),
-    [data, searchTerm, view],
+    () => (activeView === 'tree' ? buildSearchIndex(data, searchTerm) : null),
+    [data, searchTerm, activeView],
   );
-  const htmlRows = useMemo(() => (view === 'html' ? buildHtmlRows(data) : []), [data, view]);
+  const htmlRows = useMemo(
+    () => (activeView === 'html' ? buildHtmlRows(data) : []),
+    [data, activeView],
+  );
   const visibleHtmlRows = useMemo(
     () => filterHtmlRows(htmlRows, searchTerm),
     [htmlRows, searchTerm],
+  );
+  const tableModel = useMemo(
+    () => (activeView === 'table' && canShowAsTable(data) ? buildTable(data) : null),
+    [data, activeView],
+  );
+  const visibleTableRowCount = useMemo(
+    () => (tableModel ? filterTableRows(tableModel.rows, searchTerm).length : 0),
+    [tableModel, searchTerm],
   );
 
   const rootClassName = `jv-root${className ? ` ${className}` : ''}`;
@@ -82,11 +99,18 @@ export function JsonViewer({
         onSearchChange={setSearchTerm}
         onExpandAll={handleExpandAll}
         onCollapseAll={handleCollapseAll}
-        matchCount={searchIndex ? searchIndex.matches.size : visibleHtmlRows.length}
+        matchCount={
+          searchIndex
+            ? searchIndex.matches.size
+            : tableModel
+              ? visibleTableRowCount
+              : visibleHtmlRows.length
+        }
         data={data}
         instanceId={instanceId}
-        view={view}
+        view={activeView}
         showViewToggle={showViewToggle}
+        tableAvailable={tableAvailable}
         onViewChange={setView}
       />
       <div className="jv-tree-container">
@@ -106,6 +130,15 @@ export function JsonViewer({
               />
             </ul>
           </SearchContext.Provider>
+        ) : tableModel ? (
+          <ArrayTable
+            data={data as unknown[]}
+            model={tableModel}
+            label=""
+            searchTerm={searchTerm}
+            showCopyButton={showCopyButton}
+            filter
+          />
         ) : (
           <HtmlView
             rows={visibleHtmlRows}

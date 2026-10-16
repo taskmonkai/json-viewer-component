@@ -1,6 +1,6 @@
 import { describe, expect, it, vi } from 'vitest';
 import { act } from 'react';
-import { render, screen, waitFor, fireEvent } from '@testing-library/react';
+import { render, screen, waitFor, fireEvent, within } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import { JsonViewer } from '../JsonViewer';
 
@@ -366,5 +366,74 @@ describe('JsonViewer - HTML view overflow popup', () => {
     dialog = screen.getByRole('dialog');
     expect(dialog.querySelector('pre')?.textContent).toBe('{\n  "k": true\n}');
     restore();
+  });
+});
+
+describe('JsonViewer - table view', () => {
+  const people = [{ name: 'Ada', city: 'London' }, { name: 'Alan', age: 41 }, 'not an object'];
+
+  it('offers a Table view only for non-empty arrays', () => {
+    const { rerender } = render(<JsonViewer data={people} />);
+    expect(screen.getByRole('button', { name: 'Table' })).toBeInTheDocument();
+
+    rerender(<JsonViewer data={{ a: 1 }} />);
+    expect(screen.queryByRole('button', { name: 'Table' })).not.toBeInTheDocument();
+
+    rerender(<JsonViewer data={[]} />);
+    expect(screen.queryByRole('button', { name: 'Table' })).not.toBeInTheDocument();
+  });
+
+  it('shows one row per item with a column per key and a Value column', async () => {
+    const user = userEvent.setup();
+    render(<JsonViewer data={people} />);
+    await user.click(screen.getByRole('button', { name: 'Table' }));
+
+    const headers = screen.getAllByRole('columnheader').map((h) => h.textContent);
+    expect(headers).toEqual(['#', 'name', 'city', 'age', 'Value']);
+    expect(screen.getAllByRole('row')).toHaveLength(4);
+    expect(screen.getByText('London')).toBeInTheDocument();
+    expect(screen.getByText('41')).toBeInTheDocument();
+    expect(screen.getByText('not an object')).toBeInTheDocument();
+  });
+
+  it('filters rows by search and reports the row count', async () => {
+    const user = userEvent.setup();
+    render(<JsonViewer data={people} defaultView="table" />);
+
+    await user.type(screen.getByRole('searchbox'), 'london');
+    expect(screen.getAllByRole('row')).toHaveLength(2);
+    expect(screen.getByText('1 match')).toBeInTheDocument();
+  });
+
+  it('falls back to the tree when defaultView="table" is given non-array data', () => {
+    render(<JsonViewer data={{ a: 1 }} defaultView="table" />);
+    expect(screen.getByRole('tree')).toBeInTheDocument();
+  });
+
+  it('lets nested arrays in the tree switch to a table', async () => {
+    const user = userEvent.setup();
+    render(<JsonViewer data={{ users: [{ id: 1 }, { id: 2 }] }} />);
+
+    await user.click(screen.getByRole('button', { name: 'Show users as table' }));
+    expect(screen.getByRole('table')).toBeInTheDocument();
+    expect(screen.getAllByRole('columnheader').map((h) => h.textContent)).toEqual(['#', 'id']);
+
+    await user.click(screen.getByRole('button', { name: 'Show users as table' }));
+    expect(screen.queryByRole('table')).not.toBeInTheDocument();
+  });
+
+  it('can show an array value as a table in the popup', async () => {
+    const scroll = vi.spyOn(HTMLElement.prototype, 'scrollWidth', 'get').mockReturnValue(500);
+    const client = vi.spyOn(HTMLElement.prototype, 'clientWidth', 'get').mockReturnValue(100);
+    const user = userEvent.setup();
+    render(<JsonViewer data={{ rows: [{ x: 1 }, { x: 2 }] }} defaultView="html" />);
+
+    await user.click(screen.getByRole('button', { name: 'View full value of rows' }));
+    const dialog = screen.getByRole('dialog', { name: 'Value of rows' });
+    await user.click(within(dialog).getByRole('button', { name: 'Table' }));
+    expect(within(dialog).getByRole('table')).toBeInTheDocument();
+    expect(within(dialog).getAllByRole('row')).toHaveLength(3);
+    scroll.mockRestore();
+    client.mockRestore();
   });
 });
