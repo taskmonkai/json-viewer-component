@@ -66,18 +66,18 @@ export function Example() {
 
 ## Props
 
-| Prop                 | Type                | Default   | Description                                                               |
-| -------------------- | ------------------- | --------- | ------------------------------------------------------------------------- |
-| `data`               | `unknown`           | —         | The value to render. Objects, arrays, strings, numbers, booleans, `null`. |
-| `defaultExpandDepth` | `number`            | `1`       | Depth up to which nodes start expanded (`0` = only the root).             |
-| `expandAll`          | `boolean`           | `false`   | Start every node expanded, overriding `defaultExpandDepth`.               |
-| `showCopyButton`     | `boolean`           | `true`    | Show copy-to-clipboard controls on values and the toolbar.                |
-| `showSearch`         | `boolean`           | `true`    | Show the search box in the toolbar.                                       |
-| `defaultView`        | `'tree' \| 'html'`  | `'tree'`  | Initial view: expandable tree, or HTML table of top-level keys.           |
-| `showViewToggle`     | `boolean`           | `true`    | Show the Tree / HTML view switch in the toolbar.                          |
-| `theme`              | `'light' \| 'dark'` | `'light'` | Visual theme.                                                             |
-| `className`          | `string`            | —         | Extra class name applied to the root element.                             |
-| `id`                 | `string`            | —         | `id` applied to the root element.                                         |
+| Prop                 | Type                          | Default   | Description                                                                                    |
+| -------------------- | ----------------------------- | --------- | ---------------------------------------------------------------------------------------------- |
+| `data`               | `unknown`                     | —         | The value to render. Objects, arrays, strings, numbers, booleans, `null`.                      |
+| `defaultExpandDepth` | `number`                      | `1`       | Depth up to which nodes start expanded (`0` = only the root).                                  |
+| `expandAll`          | `boolean`                     | `false`   | Start every node expanded, overriding `defaultExpandDepth`.                                    |
+| `showCopyButton`     | `boolean`                     | `true`    | Show copy-to-clipboard controls on values and the toolbar.                                     |
+| `showSearch`         | `boolean`                     | `true`    | Show the search box in the toolbar.                                                            |
+| `defaultView`        | `'tree' \| 'html' \| 'table'` | `'tree'`  | Initial view: expandable tree, HTML table of top-level keys, or array table (array data only). |
+| `showViewToggle`     | `boolean`                     | `true`    | Show the Tree / HTML / Table view switch in the toolbar.                                       |
+| `theme`              | `'light' \| 'dark'`           | `'light'` | Visual theme.                                                                                  |
+| `className`          | `string`                      | —         | Extra class name applied to the root element.                                                  |
+| `id`                 | `string`                      | —         | `id` applied to the root element.                                                              |
 
 ## Copy-to-clipboard behavior
 
@@ -107,6 +107,20 @@ Values that don't fit on one line are cut off with an ellipsis and get a **View*
 the full value in a popup. In the popup, objects, arrays, and strings containing JSON are
 pretty-printed as JSON; everything else is shown as plain text. Close it with the Close button,
 <kbd>Esc</kbd>, or by clicking outside.
+
+## Table view
+
+Any non-empty array can be shown as a table: one row per item, one column per key found on its
+object items (in first-seen order), and a **Value** column for items that aren't plain objects
+(strings, numbers, nested arrays, ...). Missing keys leave the cell empty.
+
+- **Array root:** a **Table** button appears in the toolbar's view switch (or start there with
+  `defaultView="table"`; for non-array data that falls back to the tree). Search filters the rows.
+- **Nested arrays in the tree:** each non-empty array row has a small **Table** button that shows
+  that array as a table in place of its children. Click it again to go back to the tree.
+- **Popup:** when the View popup is showing an array, switch between **JSON** and **Table**.
+
+Cells are truncated like the HTML view, with a **View** button for long values.
 
 ## Customizing the theme
 

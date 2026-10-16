@@ -44,3 +44,13 @@ export const circularExample = (() => {
   node.child = child;
   return node;
 })();
+
+export const arrayData = [
+  { sku: 'A-100', product: 'Keyboard', price: 49.99, inStock: true, tags: ['usb', 'mechanical'] },
+  { sku: 'B-200', product: 'Mouse', price: 19.5, inStock: false, tags: ['wireless'] },
+  { sku: 'C-300', product: 'Monitor', price: 229, inStock: true, tags: [] },
+  'a plain string item',
+  42,
+  null,
+  [1, 2, [3, 4]],
+];

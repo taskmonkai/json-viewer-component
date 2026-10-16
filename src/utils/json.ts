@@ -36,3 +36,10 @@ export function safeStringify(value: unknown, indent = 2): string {
     indent,
   );
 }
+
+/** Single-line text for a value in a table cell: strings raw, everything else compact JSON. */
+export function stringifyInline(value: unknown): string {
+  if (typeof value === 'string') return value;
+  if (value === undefined) return 'undefined';
+  return safeStringify(value, 0);
+}

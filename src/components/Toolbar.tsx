@@ -15,6 +15,8 @@ export interface ToolbarProps {
   instanceId: string;
   view: ViewMode;
   showViewToggle: boolean;
+  /** Offer the Table view (the data is a non-empty array). */
+  tableAvailable: boolean;
   onViewChange: (view: ViewMode) => void;
 }
 
@@ -30,6 +32,7 @@ export function Toolbar({
   instanceId,
   view,
   showViewToggle,
+  tableAvailable,
   onViewChange,
 }: ToolbarProps): JSX.Element {
   const searchInputId = `${instanceId}-search`;
@@ -80,6 +83,16 @@ export function Toolbar({
             >
               HTML
             </button>
+            {tableAvailable && (
+              <button
+                type="button"
+                className="jv-btn"
+                aria-pressed={view === 'table'}
+                onClick={() => onViewChange('table')}
+              >
+                Table
+              </button>
+            )}
           </div>
         )}
         {view === 'tree' && (
