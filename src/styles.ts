@@ -132,16 +132,8 @@ export const CSS = `
 
 .jv-view-toggle {
   display: inline-flex;
-}
-.jv-view-toggle .jv-btn {
-  border-radius: 0;
-}
-.jv-view-toggle .jv-btn:first-child {
-  border-radius: 6px 0 0 6px;
-}
-.jv-view-toggle .jv-btn:last-child {
-  border-radius: 0 6px 6px 0;
-  margin-left: -1px;
+  gap: 6px;
+  margin-right: 12px;
 }
 .jv-view-toggle .jv-btn[aria-pressed='true'] {
   background: var(--jv-focus);
