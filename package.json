@@ -1,6 +1,6 @@
 {
   "name": "tm-json-viewer-lite",
-  "version": "0.2.0",
+  "version": "0.2.1",
   "description": "A lightweight, themeable, accessible React component for viewing and exploring JSON data as an expandable tree.",
   "type": "module",
   "main": "./dist/index.cjs",
