@@ -19,6 +19,7 @@ export const CSS = `
   --jv-focus: #1257c9;
   --jv-btn-bg: #f6f8fa;
   --jv-btn-border: #d0d7de;
+  --jv-dialog-bg: #ffffff;
 
   background: var(--jv-bg);
   color: var(--jv-fg);
@@ -48,6 +49,7 @@ export const CSS = `
   --jv-focus: #79c0ff;
   --jv-btn-bg: #161b22;
   --jv-btn-border: #30363d;
+  --jv-dialog-bg: #0d1117;
 }
 .jv-root *,
 .jv-root *::before,
@@ -326,7 +328,7 @@ export const CSS = `
   flex-direction: column;
   width: min(720px, 100%);
   max-height: min(80vh, 640px);
-  background: var(--jv-bg);
+  background: var(--jv-dialog-bg);
   color: var(--jv-fg);
   border: 1px solid var(--jv-border);
   border-radius: 8px;
