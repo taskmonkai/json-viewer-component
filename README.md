@@ -125,6 +125,9 @@ root element. To customize colors further, override the variables yourself via `
 <JsonViewer data={data} className="my-viewer" />
 ```
 
+The HTML view's value popup uses its own `--jv-dialog-bg` (opaque by default), so setting
+`--jv-bg: transparent` to blend the viewer into its container won't make the popup see-through.
+
 See `src/styles.ts` for the full list of variables.
 
 ## Accessibility
